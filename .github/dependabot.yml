@@ -13,6 +13,17 @@ updates:
       default-days: 7
     schedule:
       interval: daily
+    # The node and golang stages mirror upstream's toolchain pins; digest
+    # and patch updates flow, but version-line jumps follow upstream's
+    # Dockerfile, not Dependabot.
+    ignore:
+      - dependency-name: node
+        update-types:
+          - version-update:semver-major
+      - dependency-name: golang
+        update-types:
+          - version-update:semver-major
+          - version-update:semver-minor
     labels:
       - "bot :robot:"
       - "dependencies :game_die:"
