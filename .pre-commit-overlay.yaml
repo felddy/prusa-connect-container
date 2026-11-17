@@ -1,0 +1,17 @@
+# Repo-specific layer over the central pre-commit base in
+# felddy/reusable-workflows lint-config/pre-commit-base.yaml, taken at
+# the release pinned below. Renovate bumps the pin and runs
+# `sh lint-config-update` in the same PR to regenerate the merged
+# .pre-commit-config.yaml; the lint render check compares against the
+# pinned release, so central releases never stale this repository.
+# renovate: datasource=github-releases depName=felddy/reusable-workflows
+# lint-base-version: v5.6.0
+---
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    hooks:
+      # The base's exclude names lockfiles this repository does not carry,
+      # which trips check-useless-excludes; same hook, no exclude.
+      - id: pretty-format-json
+        args:
+          - --autofix

@@ -1,0 +1,19 @@
+---
+name: Label auto-merge PRs
+
+# Trigger-only stub: the dual-trigger label-automerge workflow in
+# felddy/reusable-workflows does the work.
+
+on: # yamllint disable-line rule:truthy
+  pull_request:
+    types:
+      - auto_merge_enabled
+      - auto_merge_disabled
+
+permissions: {}
+
+jobs:
+  add-remove-label:
+    uses: felddy/reusable-workflows/.github/workflows/label-automerge.yml@v5
+    permissions:
+      pull-requests: write

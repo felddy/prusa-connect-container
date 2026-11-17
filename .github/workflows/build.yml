@@ -1,0 +1,107 @@
+---
+name: Build
+
+on: # yamllint disable-line rule:truthy
+  merge_group:
+    types:
+      - checks_requested
+  pull_request:
+  push:
+    branches:
+      - develop
+      - develop-*
+  release:
+    types:
+      - published
+  schedule:
+    # Weekly image refresh (updates the edge tag). Daily CVE monitoring is
+    # handled by _rescan.yml against the attested SBOMs; floating-tag
+    # reconciliation after release edits is handled by _retag.yml.
+    - cron: 0 11 * * 1 # Mondays at 11am
+  workflow_dispatch:
+
+concurrency:
+  # Key the group on the fully-qualified ref so each event type gets its own
+  # lane: pushes use `refs/heads/<branch>`, pull requests use
+  # `refs/pull/<n>/merge`, and the merge queue uses its own ref. Those
+  # namespaces never overlap, so a pull_request run cannot cancel the push
+  # run for the same branch (and vice versa). cancel-in-progress still
+  # supersedes older runs within a ref, which is safe because required
+  # checks are only evaluated against the latest commit SHA.
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# Grant write scopes per job; a workflow-level grant would hand every
+# job (lint, diagnostics, config) a write-capable token it never needs.
+permissions: {}
+
+jobs:
+  diagnostics:
+    name: Diagnostics
+    permissions:
+      contents: read
+    uses: felddy/reusable-workflows/.github/workflows/diagnostics.yml@v5
+
+  config:
+    name: Config
+    permissions:
+      contents: read
+    uses: felddy/reusable-workflows/.github/workflows/project-config.yml@v5
+    with:
+      image-name: felddy/prusa-connect
+      # Every platform the upstream source cross-compiles for and
+      # distroless/static ships. linux/arm/v7 is excluded: the parts
+      # extension does not compile for 32-bit targets (its catalog MaxID
+      # constant overflows a 32-bit int).
+      platforms: >-
+        ["linux/amd64","linux/arm64","linux/ppc64le","linux/riscv64","linux/s390x"]
+
+  lint:
+    name: Lint
+    permissions:
+      contents: read
+    uses: felddy/reusable-workflows/.github/workflows/common-lint.yml@v5
+
+  pipeline:
+    name: Pipeline
+    needs:
+      - diagnostics
+      - config
+      - lint
+    permissions:
+      actions: read
+      # contents: write lets the pipeline record image digests in release
+      # notes; every other pipeline job narrows back to contents: read.
+      contents: write
+      packages: write
+      id-token: write
+      attestations: write
+      artifact-metadata: write
+      security-events: write
+    uses: felddy/reusable-workflows/.github/workflows/container-pipeline.yml@v5
+    with:
+      image-name: ${{ needs.config.outputs.image-name }}
+      platforms: ${{ needs.config.outputs.platforms }}
+      test-platforms: ${{ needs.config.outputs.test-platforms }}
+      build-args: ${{ needs.config.outputs.build-args }}
+      scan-severity: CRITICAL,HIGH
+      upload-scan-results: true
+
+  ci-gate:
+    name: CI Gate
+    needs:
+      - diagnostics
+      - config
+      - lint
+      - pipeline
+    # Run whether dependencies succeed, fail, or are skipped so the gate can
+    # evaluate their results -- but NOT when the run itself is cancelled
+    # (for example when superseded via `concurrency`). `always()` would
+    # execute even during cancellation and report a spurious failure;
+    # `!cancelled()` still runs when a dependency *fails*, so genuine
+    # failures are caught while cancelled runs simply skip the gate.
+    if: ${{ !cancelled() }}
+    permissions: {}
+    uses: felddy/reusable-workflows/.github/workflows/ci-gate.yml@v5
+    with:
+      needs-json: ${{ toJSON(needs) }}

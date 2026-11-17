@@ -1,0 +1,18 @@
+---
+name: Label pull requests
+
+# Trigger-only stub: the dual-trigger label-prs workflow in
+# felddy/reusable-workflows does the work.
+# Path-matching rules stay local in .github/labeler.yml.
+
+on: # yamllint disable-line rule:truthy
+  pull_request:
+
+permissions: {}
+
+jobs:
+  label:
+    uses: felddy/reusable-workflows/.github/workflows/label-prs.yml@v5
+    permissions:
+      contents: read
+      pull-requests: write

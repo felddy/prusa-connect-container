@@ -1,0 +1,20 @@
+---
+rules:
+  unpinned-uses:
+    config:
+      policies:
+        # felddy-owned reusable workflows deliberately ride the
+        # advance-only floating v5 tag (the accepted consumption model);
+        # everything else must stay hash-pinned.
+        felddy/reusable-workflows/*: ref-pin
+        "*": hash-pin
+  archived-uses:
+    ignore:
+      # nixpkgs-fmt comes from the cisagov lineage skeleton and matches no
+      # files in this repository; replacing it is upstream's call.
+      - .pre-commit-config.yaml
+  secrets-inherit:
+    ignore:
+      # Passes repo secrets by design: the renovate stub passes the
+      # GitHub App's private key.
+      - renovate.yml

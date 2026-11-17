@@ -1,0 +1,28 @@
+---
+name: Release Please
+
+# Runs the reusable release-please workflow against this repository. The
+# container version tracks upstream Prusa Connect: Renovate's bump commits
+# carry a Release-As footer that pins the next release to the upstream
+# version. Container-only changes between upstream releases need a manual
+# Release-As footer appending a fourth prerelease component (for example
+# 0.1.0-beta.1.1) so the version never collides with a future upstream one.
+# Releases publish with RELEASE_PLEASE_TOKEN so the Build pipeline runs on
+# them.
+
+on: # yamllint disable-line rule:truthy
+  push:
+    branches:
+      - develop
+
+permissions: {}
+
+jobs:
+  release-please:
+    name: Release Please
+    permissions:
+      contents: write
+      pull-requests: write
+    uses: felddy/reusable-workflows/.github/workflows/release-please.yml@v5
+    secrets:
+      release-please-token: ${{ secrets.RELEASE_PLEASE_TOKEN }}

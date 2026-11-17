@@ -1,0 +1,41 @@
+---
+# Example deployment. Kubernetes and Podman deployments are the documented
+# first choices — see docs/deployment/ — but if Docker Compose is what you
+# run, this file mirrors upstream's hardened service definition.
+#
+# The server reads no environment variables: all configuration lives in a
+# single YAML file. Drop your config.yaml beside this file (or start without
+# one to get the defaults: SQLite, API on :8080).
+
+services:
+  prusa-connect:
+    image: ghcr.io/felddy/prusa-connect:prerelease
+    container_name: prusa_connect
+    ports:
+      - 8080:8080
+    volumes:
+      # Uncomment to provide your own configuration file:
+      # - ./config.yaml:/config/config.yaml:ro
+      - prusa_connect_config:/config/config.d
+      - prusa_connect_data:/data
+      - prusa_connect_files:/files
+      - prusa_connect_storage:/storage
+      - prusa_connect_tmp:/tmp
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "5"
+
+volumes:
+  prusa_connect_config:
+  prusa_connect_data:
+  prusa_connect_files:
+  prusa_connect_storage:
+  prusa_connect_tmp:

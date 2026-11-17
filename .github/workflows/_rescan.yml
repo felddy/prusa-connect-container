@@ -1,0 +1,35 @@
+---
+name: Rescan
+
+# Daily CVE monitoring of the published images: scans the attested SBOMs of
+# the floating tags without rebuilding or pulling images. The weekly Build
+# workflow refreshes the images themselves.
+#
+# While upstream ships prereleases only, the floating tags are `prerelease`
+# and `edge`; `latest` joins the list with upstream's first stable release.
+
+on: # yamllint disable-line rule:truthy
+  schedule:
+    - cron: 0 11 * * * # everyday at 11am
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref_name }}
+  cancel-in-progress: true
+
+permissions: {}
+
+jobs:
+  rescan:
+    name: Rescan Container
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+      attestations: write
+      artifact-metadata: write
+      security-events: write
+    uses: felddy/reusable-workflows/.github/workflows/container-rescan.yml@v5
+    with:
+      image-name: felddy/prusa-connect
+      tags: '["prerelease","edge"]'
