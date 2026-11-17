@@ -17,7 +17,7 @@ ARG PRUSA_CONNECT_SHA256=96990b788111fae5d547c0a43d962ea67eb4585a74b8bb478a2aa51
 # The sanctioned build input: the release's own source archive, not a git
 # checkout. Upstream's container doc is explicit that images build from
 # `prusa-connect-<version>-source.tar.gz`.
-FROM --platform=$BUILDPLATFORM alpine:3.22@sha256:49340b346798875b5592e5d420241f2f9cfba5f47e62ebb1446a1b34734e898f AS src
+FROM --platform=$BUILDPLATFORM alpine:3.24@sha256:f59abe656b692d901e184be3445e084786602108599d2a51d229c0f5a48c71bf AS src
 ARG PRUSA_CONNECT_VERSION
 ARG PRUSA_CONNECT_SHA256
 ADD --checksum=sha256:${PRUSA_CONNECT_SHA256} \
@@ -183,7 +183,7 @@ RUN export CGO_ENABLED=0 GOOS="$TARGETOS" GOARCH="$TARGETARCH" GOARM="${TARGETVA
 # so bind mounts chowned for upstream's image work here unchanged.
 FROM gcr.io/distroless/static-debian13:nonroot@sha256:aafe993665bf6200db38a02c11a9351e782a84b6a45e7f33b6695638c88e3931 AS distroless
 
-FROM --platform=$BUILDPLATFORM alpine:3.22@sha256:49340b346798875b5592e5d420241f2f9cfba5f47e62ebb1446a1b34734e898f AS rootfs
+FROM --platform=$BUILDPLATFORM alpine:3.24@sha256:f59abe656b692d901e184be3445e084786602108599d2a51d229c0f5a48c71bf AS rootfs
 RUN mkdir -p /staging/etc
 COPY --from=distroless /etc/passwd /etc/group /staging/etc/
 RUN printf 'prusa:x:10001:10001:prusa:/:/sbin/nologin\n' >> /staging/etc/passwd && \
