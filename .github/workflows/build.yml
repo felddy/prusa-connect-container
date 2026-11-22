@@ -60,7 +60,7 @@ jobs:
     name: Lint
     permissions:
       contents: read
-    uses: felddy/reusable-workflows/.github/workflows/common-lint.yml@v5
+    uses: felddy/reusable-workflows/.github/workflows/common-lint.yml@v6
 
   pipeline:
     name: Pipeline
