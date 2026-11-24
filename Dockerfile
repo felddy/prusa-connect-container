@@ -4,8 +4,8 @@
 # source archive, which GitHub reports as the asset's digest. The two move
 # together — Renovate rewrites both when upstream publishes a release — and
 # `ADD --checksum` below fails the build if the archive and the pin disagree.
-ARG PRUSA_CONNECT_VERSION=0.1.0-beta.1
-ARG PRUSA_CONNECT_SHA256=96990b788111fae5d547c0a43d962ea67eb4585a74b8bb478a2aa514021415cf
+ARG PRUSA_CONNECT_VERSION=0.1.0-beta.2
+ARG PRUSA_CONNECT_SHA256=bb0092fe9e78165821d0998665de9fd91311bf7e55ef39dd0b7d97190532c3c4
 
 # Every stage before the runtime runs on the build platform and cross-compiles
 # for the target, so a wide platform matrix never executes under emulation:

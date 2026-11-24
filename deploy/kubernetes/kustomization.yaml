@@ -21,12 +21,12 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
 resources:
-  - https://github.com/prusa3d/prusa-connect//deploy/kubernetes?ref=v0.1.0-beta.1
+  - https://github.com/prusa3d/prusa-connect//deploy/kubernetes?ref=v0.1.0-beta.2
 
 images:
   - name: prusa-connect
     newName: ghcr.io/felddy/prusa-connect
-    newTag: 0.1.0-beta.1
+    newTag: 0.1.0-beta.2
 
 patches:
   - target:
